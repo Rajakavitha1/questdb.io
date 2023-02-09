@@ -1,5 +1,5 @@
 ---
-title: Migrating from InfluxDB to QuestDB
+title: Migrating from InfluxDB
 description:
   This document describes details about steps to migrate your database from
   InfluxDB to QuestDB.

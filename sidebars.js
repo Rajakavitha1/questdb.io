@@ -56,6 +56,7 @@ module.exports = {
       label: "Guides",
       type: "category",
       items: [
+        "guides/influxdb-migration",
         "guides/importing-data",
         "guides/importing-data-rest",
         "guides/modifying-data",
