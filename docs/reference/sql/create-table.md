@@ -7,11 +7,6 @@ description: CREATE TABLE SQL keywords reference documentation.
 To create a new table in the database, the `CREATE TABLE` keywords followed by
 column definitions are used.
 
-```questdb-sql
-CREATE TABLE my_table(symb SYMBOL, price DOUBLE, ts TIMESTAMP, s STRING)
-  timestamp(ts);
-```
-
 ## Syntax
 
 To create a table by manually entering parameters and settings:
@@ -260,7 +255,73 @@ SELECT id, name, maxUncommittedRows FROM tables();
 | 1   | my_table    | 250000             |
 | 2   | device_data | 10000              |
 
-### QuestDB 6.5.5 and earlier versions
+## Table target volume
+
+The `IN VOLUME` clause is used to create a table in a different volume than the standard. The table
+is created in the specified target volume, and a symbolic link is created in the table's standard 
+volume to point to it.
+
+![Flow chart showing the syntax of keywords to specify a table target volume](/img/docs/diagrams/tableTargetVolumeDef.svg)
+
+The use of the comma (`,`) depends on the existence of the `WITH` clause:
+
+- If the `WITH` clause is present, a comma is mandatory before
+  `IN VOLUME`:
+
+  ```questdb-sql
+  CREATE TABLE my_table (i symbol, ts timestamp), index(i capacity 32) WITH maxUncommittedRows=7, IN VOLUME SECONDARY_VOLUME;
+  ```
+
+- If no `WITH` clause is used, the comma must not be added for the `IN VOLUME`
+  segment:
+
+  ```questdb-sql
+  CREATE TABLE my_table (i symbol, ts timestamp) IN VOLUME SECONDARY_VOLUME;
+  ```
+
+The use of quotation marks (`'`) depends on the alias:
+
+- If the alias contains spaces, the quotation marks are required:
+
+    ```questdb-sql
+    CREATE TABLE my_table (i symbol, ts timestamp), index(i capacity 32) IN VOLUME 'SECONDARY VOLUME';
+    ```
+- If the alias does not contain spaces, no quotation mark is necessary:
+
+    ```questdb-sql
+    CREATE TABLE my_table (i symbol, ts timestamp), index(i capacity 32) IN VOLUME SECONDARY_VOLUME;
+    ```
+    
+### Description
+
+The table behaves the same way as if it had been created in the standard (default)
+volume, with the exception that [`DROP TABLE`](/docs/reference/sql/drop/) 
+removes the symbolic link from the standard volume but the content pointed to is 
+left intact in its volume. A table using the same name in the same 
+volume cannot be created again as a result, it requires manual intervention 
+to either remove or rename the table's directory in its volume.
+
+### Configuration
+
+The secondary table target volume is defined by
+`cairo.create.allowed.volume.definitions` in
+[`server.conf`](/docs/reference/configuration/#cairo-engine). The default setting
+contains an empty list, which means the feature is not enabled.
+
+To enable the feature, define as many volume pairs as you need, with syntax 
+_alias -> volume-root-path_, and separate different pairs with a comma. For example:
+
+```
+cairo.create.allowed.volume.definitions=SECONDARY_VOLUME -> /Users/quest/mounts/secondary, BIN -> /var/bin
+```
+
+Additional notes about defining the alias and volume root paths:
+
+- Aliases are case-insensitive.
+- Volume root paths must be valid and exist at bootstrap time and at the time when the table is created.
+- Aliases and/or volume root paths can be single quoted, it is not required.
+
+## QuestDB 6.5.5 and earlier versions
 
 ![Flow chart showing the syntax of keyword to specify WITH table commit parameters](/img/docs/diagrams/createTableWithCommitParam.svg)
 

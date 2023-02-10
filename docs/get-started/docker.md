@@ -3,124 +3,103 @@ title: Get started with QuestDB via Docker
 sidebar_label: Docker
 description:
   Guide showing how to use QuestDB with Docker. This also covers how to import
-  data as well as persistence.
+  and persist QuestDB data in a docker container.
 ---
 
 import InterpolateReleaseData from "../../src/components/InterpolateReleaseData"
 import CodeBlock from "@theme/CodeBlock"
+import Tabs from "@theme/Tabs"
+import TabItem from "@theme/TabItem"
 
 QuestDB has images for both Linux/macOS and Windows on
 [Docker Hub]({@dockerUrl@}).
 
 ## Install Docker
 
-Before we start, you will need to install Docker. You can find guides for your
-platform on the [official documentation](https://docs.docker.com/get-docker/).
+To begin, install Docker. You can find guides for your platform on the
+[official documentation](https://docs.docker.com/get-docker/).
 
-## QuestDB image
+## Run QuestDB image
 
 Once Docker is installed, you will need to pull QuestDB's image from
-[Docker Hub]({@dockerUrl@}) and create a container. You can do both in one
-command using `docker run`:
+[Docker Hub]({@dockerUrl@}) and create a container.
+
+This can be done with a single command using:
 
 <InterpolateReleaseData
   renderText={(release) => (
-    <CodeBlock className="language-shell" title={"Docker"}>
-      {`docker run -p 9000:9000 \\
--p 9009:9009 \\
--p 8812:8812 \\
--p 9003:9003 \\
--v "$(pwd):/var/lib/questdb" \\
-questdb/questdb:${release.name}`}
+    <CodeBlock className="language-shell">
+      {`docker run \\
+  -p 9000:9000 -p 9009:9009 -p 8812:8812 -p 9003:9003 \\
+  -v "$(pwd):/var/lib/questdb" \\
+  questdb/questdb:${release.name}`}
     </CodeBlock>
-  )
-}
+  )}
 />
 
-### Options
+This command starts a docker container from `questdb/questdb` image. In
+addition, it exposes some ports and also mounts a volume, to allow your data to persist.
 
-| Argument | Description                 |
-| -------- | --------------------------- |
-| `-p`     | Port to publish to the host |
-| `-v`     | To bind mount a volume.     |
+Below each parameter is described in detail.
 
-#### `-p` parameter
+### `-p` parameter to expose ports
 
-This parameter will publish a port to the host, you can specify:
+This parameter will expose a port to the host. You can specify:
 
-- `-p 9000:9000` - [REST API](/docs/reference/api/rest) and
-  [Web Console](/docs/develop/web-console)
-- `-p 9009:9009` - [InfluxDB line protocol](/docs/reference/api/ilp/overview)
-- `-p 8812:8812` - [Postgres wire protocol](/docs/reference/api/postgres)
+- `-p 9000:9000` - [REST API](/docs/reference/api/rest/) and
+  [Web Console](/docs/develop/web-console/)
+- `-p 9009:9009` - [InfluxDB line protocol](/docs/reference/api/ilp/overview/)
+- `-p 8812:8812` - [Postgres wire protocol](/docs/reference/api/postgres/)
 - `-p 9003:9003` -
-  [Min health server](/docs/reference/configuration#minimal-http-server)
+  [Min health server](/docs/reference/configuration#minimal-http-server/)
 
-#### -v volumes
+All ports are optional, you can pick only the ones you need. For example, it is
+enough to expose `8812` if you only plan to use
+[InfluxDB line protocol](/docs/reference/api/ilp/overview/).
+
+### `-v` parameter to mount storage
+
+This parameter will make a local folder available to QuestDB docker container.
+It will have all data ingested to QuestDB, server logs and configuration.
 
 The QuestDB [root_directory](/docs/concept/root-directory-structure) is in the
 following location:
 
 <!-- prettier-ignore-start -->
 
-import Tabs from "@theme/Tabs"
-import TabItem from "@theme/TabItem"
+export const volumeTabs = [
+  { label: "Linux", value: "linux", code: '/var/lib/questdb' },
+  { label: "macOS", value: "macos", code: '/var/lib/questdb' },
+  { label: "Windows", value: "windows", code: 'C:\\questdb' },
+]
 
-<Tabs defaultValue="linux" values={[
-  { label: "Linux", value: "linux" },
-  { label: "macOS", value: "macos" },
-  { label: "Windows", value: "windows" },
-]}>
+<Tabs defaultValue="linux" values={volumeTabs}>
+{ volumeTabs.map(tab => (
+  <TabItem key={tab.value} value={tab.value}>
+    <CodeBlock>{tab.code}</CodeBlock>
+  </TabItem>
+))}
+</Tabs>
 
 <!-- prettier-ignore-end -->
 
-<TabItem value="linux">
-
-
-```shell
-/var/lib/questdb
-```
-
-</TabItem>
-
-
-<TabItem value="macos">
-
-
-```shell
-/var/lib/questdb
-```
-
-</TabItem>
-
-
-<TabItem value="windows">
-
-
-```shell
-C:\questdb
-```
-
-</TabItem>
-
-
-</Tabs>
-
-
-#### Docker image
+### Docker image version
 
 By default, `questdb/questdb` points to the latest QuestDB version available on
 Docker. However, it is recommended to define the version used.
 
-<InterpolateReleaseData renderText={(release) => (
-  <CodeBlock className="language-shell">
-    {`questdb/questdb:${release.name}`}
-  </CodeBlock>
-)} />
+<InterpolateReleaseData
+  renderText={(release) => (
+    <CodeBlock className="language-shell">
+      {`questdb/questdb:${release.name}`}
+    </CodeBlock>
+  )}
+/>
 
 ## Container status
 
-You can check the status of your container with **docker ps**. It also lists the
-ports we published:
+You can check the status of your container with `docker ps`. It also lists the
+exposed ports:
 
 ```shell
 docker ps
@@ -133,14 +112,14 @@ dd363939f261        questdb/questdb     "/app/bin/java -m io…"   3 seconds ago
 
 ## Importing data and sending queries
 
-Now that QuestDB is running, you can start interacting with it:
+When QuestDB is running, you can start interacting with it:
 
-- If you published the port `9000`, you can follow our
-  [REST](/docs/reference/api/rest) page
-- If you published the port `8812`, follow our
-  [Postgres](/docs/reference/api/postgres) page
-- If you published the port `9009`, follow our
-  [InfluxDB](/docs/reference/api/ilp/overview) page
+- Port `9000` is for REST. More info is available on the
+  [REST documentation page](/docs/reference/api/rest/).
+- Port `8812` is used for Postgres. Check our
+  [Postgres reference page](/docs/reference/api/postgres/).
+- Port `9009` is dedicated to ILP. Consult our
+  [InfluxDB page](/docs/reference/api/ilp/overview).
 
 ## Data persistence
 
@@ -155,14 +134,13 @@ container using the `-v` flag in a Docker `run` command:
   renderText={(release) => (
     <CodeBlock className="language-shell" title={"Mounting a volume"}>
       {`docker run -p 9000:9000 \\
--p 9009:9009 \\
--p 8812:8812 \\
--p 9003:9003 \\
--v "$(pwd):/var/lib/questdb" \\
-questdb/questdb:${release.name}`}
+  -p 9009:9009 \\
+  -p 8812:8812 \\
+  -p 9003:9003 \\
+  -v "$(pwd):/var/lib/questdb" \\
+  questdb/questdb:${release.name}`}
     </CodeBlock>
-  )
-}
+  )}
 />
 
 The current directory will then have data persisted to disk for convenient
@@ -186,9 +164,11 @@ mounted to maintain data persistence.
 
 :::note
 
-* Check the [release note](https://github.com/questdb/questdb/releases) and ensure
-that necessary [backup](/docs/operations/backup/) is completed.
-* Upgrading an instance is possible only when the original instance has a volume mounted. Without mounting a volume for the original instance, the following steps create a new instance and data in the old instance cannot be retrieved.
+- Check the [release notes](https://github.com/questdb/questdb/releases) and
+  ensure that necessary [backup](/docs/operations/backup/) is completed.
+- Upgrading an instance is possible only when the original instance has a volume
+  mounted. Without mounting a volume for the original instance, the following
+  steps create a new instance and data in the old instance cannot be retrieved.
 
 :::
 
@@ -211,20 +191,23 @@ docker rm dd363939f261
 
 3. Download the latest QuestDB image:
 
-<InterpolateReleaseData renderText={(release) => (
-  <CodeBlock className="language-shell">
-    {`docker pull questdb/questdb:${release.name}`} 
-  </CodeBlock>
-)} />
-
+<InterpolateReleaseData
+  renderText={(release) => (
+    <CodeBlock className="language-shell">
+      {`docker pull questdb/questdb:${release.name}`}
+    </CodeBlock>
+  )}
+/>
 
 4. Start a new container with the new version and the same volume mounted:
 
-<InterpolateReleaseData renderText={(release) => (
-  <CodeBlock className="language-shell">
-    {`docker run -p 8812:8812 -p 9000:9000 -v "$(pwd):/var/lib/questdb" questdb/questdb:${release.name}`} 
-  </CodeBlock>
-)} />
+<InterpolateReleaseData
+  renderText={(release) => (
+    <CodeBlock className="language-shell">
+      {`docker run -p 8812:8812 -p 9000:9000 -v "$(pwd):/var/lib/questdb" questdb/questdb:${release.name}`}
+    </CodeBlock>
+  )}
+/>
 
 ### Writing logs to disk
 
@@ -294,10 +277,10 @@ Running the following command will create a new container for the QuestDB image:
 
 ```shell
 docker run -p 9000:9000 \
- -p 9009:9009 \
- -p 8812:8812 \
- -p 9003:9003 \
- questdb/questdb
+  -p 9009:9009 \
+  -p 8812:8812 \
+  -p 9003:9003 \
+  questdb/questdb
 ```
 
 By giving the container a name with `--name container_name`, we have an easy way
@@ -305,11 +288,11 @@ to refer to the container created by run later on:
 
 ```shell
 docker run -p 9000:9000 \
- -p 9009:9009 \
- -p 8812:8812 \
- -p 9003:9003 \
- --name docker_questdb \
- questdb/questdb
+  -p 9009:9009 \
+  -p 8812:8812 \
+  -p 9003:9003 \
+  --name docker_questdb \
+  questdb/questdb
 ```
 
 If we want to re-use this container and its data after it has been stopped, we

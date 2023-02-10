@@ -254,7 +254,7 @@ This section describes configuration settings for the Cairo SQL engine in
 QuestDB.
 
 | Property                                       | Default           | Description                                                                                                                                                                                                              |
-| ---------------------------------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| ---------------------------------------------- | ----------------- |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | query.timeout.sec                              | 60                | A global timeout (in seconds) for long-running queries.                                                                                                                                                                  |
 | cairo.max.uncommitted.rows                     | 500000            | Maximum number of uncommitted rows per table, when the number of pending rows reaches this parameter on a table, a commit will be issued.                                                                                |
 | cairo.commit.lag (QuestDB 6.5.5 and earlier)   | 5 minutes         | Expected maximum time lag for out-of-order rows in milliseconds.                                                                                                                                                         |
@@ -336,6 +336,8 @@ QuestDB.
 | cairo.sql.column.purge.retry.delay.multiplier  | 10.0              | Multiplier used to increases retry delay with each iteration.                                                                                                                                                            |
 | cairo.sql.column.purge.retry.delay.limit       | 60000000          | Delay limit (μs), upon reaching which, the re-try delay remains constant.                                                                                                                                                |
 | cairo.sql.column.purge.retry.limit.days        | 31                | Number of days purge system will continue to re-try deleting stale column files before giving up.                                                                                                                        |
+| cairo.system.table.prefix                      | sys.              | Prefix of the tables used for QuestDB internal data storage. These tables are hidden from QuestDB webconsole.                                                                                                            |
+| cairo.create.allowed.volume.definitions        | -                 | A comma separated list of _alias -> root-path_ pairs defining allowed volumes to be used in [CREATE TABLE IN VOLUME](/docs/reference/sql/create-table/#table-target-volume) statements.                                  |
 | cairo.system.table.prefix                      | sys.              | Prefix of the tables used for QuestDB internal data storage. These tables are hidden from QuestDB web console.                                                                                                           |
 | cairo.wal.enabled.default                      | false             | Setting defining whether WAL table is the default when using `CREATE TABLE`.                                                                                                                                             |
 
@@ -351,7 +353,6 @@ The following WAL tables settings on parallel threads are configurable for apply
 | cairo.wal.purge.interval | 30000                       | Period in ms of how often WAL-applied files are cleaned up from the disk |
 | cairo.wal.segment.rollover.row.count | 200000           | The number of rows written to the same WAL segment before starting a new segment |
 | cairo.wal.commit.squash.row.limit | 500000                  | Maximum row count that can be squashed together from multiple transactions before applying to the table. A very low value can delay data visibility. |
-
 
 ### CSV import
 

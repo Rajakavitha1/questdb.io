@@ -8,8 +8,12 @@ description: DROP TABLE SQL keyword reference documentation.
 
 :::caution
 
-This command irremediably deletes the data in the target table. In doubt, make
-sure you have created [backups](/docs/reference/sql/backup) of your data.
+This command irremediably deletes the data in the target table. Unless the 
+table was created in a different volume than the standard, see 
+[CREATE TABLE IN VOLUME](/docs/reference/sql/create-table/#table-target-volume), in
+which case the table is only logically removed and data remains intact in 
+its volume. In doubt, make sure you have created 
+[backups](/docs/reference/sql/backup/) of your data.
 
 :::
 

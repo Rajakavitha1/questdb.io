@@ -32,7 +32,7 @@ Returns a `table` with the following columns:
   table
 
 For more details on the meaning and use of these values, see the
-[CREATE TABLE](/docs/reference/sql/create-table) documentation.
+[CREATE TABLE](/docs/reference/sql/create-table/) documentation.
 
 **Examples:**
 
@@ -41,7 +41,7 @@ table_columns('my_table')
 ```
 
 | column | type      | indexed | indexBlockCapacity | symbolCached | symbolCapacity | designated |
-| ------ | --------- | ------- | ------------------ | ------------ | -------------- | ---------- |
+|--------|-----------|---------|--------------------|--------------|----------------|------------|
 | symb   | SYMBOL    | true    | 1048576            | false        | 256            | false      |
 | price  | DOUBLE    | false   | 0                  | false        | 0              | false      |
 | ts     | TIMESTAMP | false   | 0                  | false        | 0              | true       |
@@ -52,7 +52,7 @@ SELECT column, type, designated FROM table_columns('my_table') WHERE designated
 ```
 
 | column | type      | designated |
-| ------ | --------- | ---------- |
+|--------|-----------|------------|
 | ts     | TIMESTAMP | true       |
 
 ```questdb-sql title="Get the count of column types"
@@ -60,7 +60,7 @@ SELECT type, count() FROM table_columns('my_table');
 ```
 
 | type      | count |
-| --------- | ----- |
+|-----------|-------|
 | SYMBOL    | 1     |
 | DOUBLE    | 1     |
 | TIMESTAMP | 1     |
@@ -84,27 +84,37 @@ Returns a `table`.
 tables();
 ```
 
-| id  | name        | designatedTimestamp | partitionBy | maxUncommittedRows | o3MaxLag  | walEnabled |
-| --- | ----------- | ------------------- | ----------- | ------------------ | --------- | ---------- |      
-| 1   | my_table    | ts                  | DAY         | 500000             | 300000000 | true       |
-| 2   | device_data | null                | NONE        | 10000              | 30000000  | false      |
+| id  | name        | designatedTimestamp | partitionBy | maxUncommittedRows | o3MaxLag   | walEnabled | directoryName    |
+|-----|-------------|---------------------|-------------|--------------------|------------|------------|------------------|
+| 1   | my_table    | ts                  | DAY         | 500000             | 30000000 0 | false      | my_table         |
+| 2   | device_data | null                | NONE        | 10000              | 30000000   | false      | device_data      |
+| 3   | short_lived | null                | HOUR        | 10000              | 30000000   | false      | short_lived (->) |
 
 ```questdb-sql title="All tables in reverse alphabetical order"
 tables() ORDER BY name DESC;
 ```
 
-| id  | name        | designatedTimestamp | partitionBy | maxUncommittedRows | o3MaxLag  | walEnabled |
-| --- | ----------- | ------------------- | ----------- | ------------------ | --------- | ---------- |
-| 2   | device_data | null                | NONE        | 10000              | 30000000  | false      |
-| 1   | my_table    | ts                  | DAY         | 500000             | 300000000 | true       |
+| id  | name        | designatedTimestamp | partitionBy | maxUncommittedRows | o3MaxLag  | walEnabled | directoryName    |
+|-----|-------------|---------------------|-------------|--------------------|-----------|------------|------------------|
+| 2   | device_data | null                | NONE        | 10000              | 30000000  | false      | device_data      |
+| 1   | my_table    | ts                  | DAY         | 500000             | 300000000 | false      | my_table         |
+| 3   | short_lived | ts                  | HOUR        | 10000              | 30000000  | false      | short_lived (->) |
+
+
+:::note
+
+`(->)` means the table was created using the [IN VOLUME](/docs/reference/sql/create-table/#table-target-volume) clause.
+
+:::
+
 
 ```questdb-sql title="All tables with a daily partitioning strategy"
 tables() WHERE partitionBy = 'DAY'
 ```
 
-| id  | name     | designatedTimestamp | partitionBy | maxUncommittedRows | walEnabled |
-| --- | -------- | ------------------- | ----------- | ------------------ | ---------- |
-| 1   | my_table | ts                  | DAY         | 500000             | true       |
+| id  | name     | designatedTimestamp | partitionBy | maxUncommittedRows | walEnabled | directoryName |
+|-----|----------|---------------------|-------------|--------------------|------------|---------------|
+| 1   | my_table | ts                  | DAY         | 500000             | true       | my_table      |
 
 ## wal_tables
 
@@ -112,7 +122,7 @@ tables() WHERE partitionBy = 'DAY'
 
 **Arguments:**
 
-- `tables()` does not require arguments.
+- `wal_tables()` does not require arguments.
 
 **Return value:**
 
@@ -134,4 +144,3 @@ wal_tables();
 | sensor_wal  | false     | 2         | 4            | 
 | weather_wal | false     | 3         | 3            | 
 | test_wal    | true      | 7         | 9            | 
-

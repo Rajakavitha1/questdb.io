@@ -62,6 +62,11 @@ module.exports = {
         "guides/modifying-data",
         "guides/working-with-timestamps-timezones",
         "guides/out-of-order-commit-lag",
+        {
+          label: "More tutorials",
+          type: "link",
+          href: "/blog/tags/tutorial/",
+        },
       ],
     },
     {

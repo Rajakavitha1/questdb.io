@@ -12,9 +12,11 @@ createTableDef
   ('timestamp' '(' columnRef ')' ) ('PARTITION' 'BY' ('NONE' | 'YEAR' | 'MONTH' | 'DAY' | 'HOUR' ))?
   )? (
   'WAL' | 'BYPASS' 'WAL')?
+ ('WITH' tableParameter)?
+ (tableTargetVolumeDef)?
 
 createTableLike
-::= 'CREATE' 'TABLE' ('(' 'LIKE' sourceTableName ')')? 
+::= 'CREATE' 'TABLE' ( '(' 'LIKE' sourceTableName ')' )? ';'
 
 alterTable 
   ::= 'ALTER' 'TABLE' tableName
@@ -37,6 +39,10 @@ typeDef
 
 indexDef 
   ::='INDEX' '(' columnRef ('CAPACITY' valueBlockSize)?')'
+
+tableTargetVolumeDef
+
+::= ','? 'IN' 'VOLUME' "'"? secondaryVolumeAlias "'"?
 
 insertInto
   ::= 'INSERT' ('batch' batchCount)?

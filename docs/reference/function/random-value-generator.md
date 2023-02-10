@@ -30,6 +30,7 @@ QuestDB supports the following random generation functions:
 - [rnd_symbol](#rnd_symbol)
 - [rnd_str](#rnd_str)
 - [rnd_bin](#rnd_bin)
+- [rnd_uuid4](#rnd_uuid4)
 
 ## Usage
 
@@ -531,4 +532,28 @@ Return value type is `binary`.
 ```questdb-sql title="Random binary"
 SELECT rnd_bin() FROM long_sequence(5);
 SELECT rnd_bin(2, 5, 2) FROM long_sequence(5);
+```
+
+## rnd_uuid4
+
+- `rnd_uuid4()` is used to generate a random [UUID](/docs/reference/sql/datatypes/#the-uuid-type).
+- The generated UUIDs are [version 4](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random)) as per the
+  [RFC 4122](https://tools.ietf.org/html/rfc4122#section-4.4) specification.
+- Generated UUIDs do not use a cryptographically strong random generator and should not be used for
+  security purposes.
+
+**Return value:**
+
+Return value type is `uuid`.
+
+**Examples:**
+
+```questdb-sql title="Random char"
+SELECT rnd_uuid4() FROM long_sequence(3);
+```
+
+```
+deca0b0b-b14b-4d39-b891-9e1e786a48e7
+2f113ebb-d36e-4e58-b804-6ece2263abe4
+6eddd24a-8889-4345-8001-822cc2d41951
 ```
